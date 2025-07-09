@@ -1,0 +1,5 @@
+Dockerfile
+.dockerignore
+
+*.egg-info
+*.lake

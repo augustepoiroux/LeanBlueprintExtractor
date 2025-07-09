@@ -1,0 +1,10 @@
+# Python related
+*.egg-info
+__pycache__
+.venv
+
+# Lean related
+*.lake
+
+# Extraction directory
+traced_repos

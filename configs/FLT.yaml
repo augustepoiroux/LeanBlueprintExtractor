@@ -1,0 +1,5 @@
+repositories:
+  - git_url: "https://github.com/ImperialCollegeLondon/FLT"
+    commit: "37a5f3ad90e46293946a9ad488e832da6f53b9a2"
+    project_name: "FLT"
+    blueprint_cmd: null

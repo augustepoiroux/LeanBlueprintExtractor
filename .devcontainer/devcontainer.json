@@ -1,0 +1,13 @@
+{
+  "name": "LeanBlueprintExtractor Dev Container",
+
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+
+  "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+
+  "containerEnv": {
+    "GITHUB_ACCESS_TOKEN": "${localEnv:GITHUB_ACCESS_TOKEN}"
+  }
+}

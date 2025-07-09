@@ -1,0 +1,26 @@
+[project]
+name = "lean-blueprint-extractor"
+version = "0.1.0"
+authors = []
+description = "Lean Blueprint Extractor is a tool for extracting and managing Lean Blueprint projects."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+dependencies = [
+    "jsonlines",
+    "rich",
+    "leanblueprint>=0.0.15",
+    "lean-interact==0.7.0",
+    "networkx>=3.4.2",
+    "joblib>=1.5.1",
+    "tqdm>=4.67.1",
+    "pyyaml>=6.0.2",
+]
+
+[build-system]
+requires      = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
