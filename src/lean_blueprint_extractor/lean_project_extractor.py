@@ -65,11 +65,13 @@ def get_declaration_dependencies(
     return results
 
 
-def extract_declaration_dependencies(traced_project: Path) -> list[dict]:
+def extract_declaration_dependencies(traced_project: Path, repl_config: LeanREPLConfig) -> list[dict]:
     """Extract all Lean declaration identifiers from the traced repo and their dependencies."""
-    # return []
     declaration_dependencies = []
-    for lean_cached_file in (traced_project / ".trace_cache").glob("**/*.lean"):
+    omit_dir = repl_config._cache_repl_dir.resolve()
+    for lean_cached_file in (traced_project.resolve() / ".trace_cache").glob("**/*.lean"):
+        if lean_cached_file.is_relative_to(omit_dir):
+            continue
         trace_file = lean_cached_file.with_suffix(".declarations.jsonl")
         lean_real_file = traced_project / lean_cached_file.relative_to(traced_project / ".trace_cache")
         if not lean_cached_file.exists():
@@ -144,8 +146,6 @@ def process_file(file: str, project_dir: Path, repl_config: LeanREPLConfig) -> t
 def trace_repo(output_dir: str, project: BaseProject, nb_process: int, verbose: bool = True) -> tuple[Path, list[dict]]:
     repl_config = LeanREPLConfig(
         project=project,
-        repl_rev="declaration-extraction",
-        force_pull_repl=True,
         cache_dir=output_dir,
         verbose=verbose,
     )
@@ -190,7 +190,7 @@ def trace_repo(output_dir: str, project: BaseProject, nb_process: int, verbose: 
         else:
             logger.info("No errors encountered.")
 
-    all_declarations = extract_declaration_dependencies(project_dir)
+    all_declarations = extract_declaration_dependencies(project_dir, repl_config)
     with jsonlines.open(os.path.join(trace_dir, "lean_declarations.jsonl"), "w") as writer:
         writer.write_all(all_declarations)
 
