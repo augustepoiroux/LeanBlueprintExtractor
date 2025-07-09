@@ -1,6 +1,7 @@
 # (WIP) LeanBlueprintExtractor
 
 This repository features the code for the programmatic manipulation and data extraction of Lean 4 blueprint projects.
+Compatible with all Lean versions between 4.8.0-rc1 and v4.22.0-rc3.
 
 ## Project setup
 

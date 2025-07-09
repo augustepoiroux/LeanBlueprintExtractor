@@ -309,7 +309,7 @@ mcp = [
 requires-dist = [
     { name = "joblib", specifier = ">=1.5.1" },
     { name = "jsonlines", specifier = ">=4.0.0" },
-    { name = "lean-interact", specifier = "==0.7.0" },
+    { name = "lean-interact", git = "https://github.com/augustepoiroux/LeanInteract?tag=nightly-2025-07-09" },
     { name = "leanblueprint", specifier = ">=0.0.15" },
     { name = "mcp", extras = ["cli"], marker = "extra == 'mcp'", specifier = ">=1.6.0" },
     { name = "networkx", specifier = ">=3.4.2" },
@@ -321,7 +321,7 @@ requires-dist = [
 [[package]]
 name = "lean-interact"
 version = "0.7.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/augustepoiroux/LeanInteract?tag=nightly-2025-07-09#9328d19eccb63230fe806aac7715620b8ad58f03" }
 dependencies = [
     { name = "filelock" },
     { name = "gitpython" },
@@ -330,10 +330,6 @@ dependencies = [
     { name = "pydantic" },
     { name = "requests" },
     { name = "rich" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4a/ea/c547957ec55347c6304b980b23f9b48edd479337437f92e9a5165defa6bc/lean_interact-0.7.0.tar.gz", hash = "sha256:ec242f2b0a612488d74181a24858875eccdfa826e8fc9ff40cb35a754053ed1b", size = 138799 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5f/43/b0b4ffde4b0cf23c1ab0c7d0446b7f66c1a148c29e899a5e320c254e2112/lean_interact-0.7.0-py3-none-any.whl", hash = "sha256:5c5cd6c454ea23c0aa00c2ff9b2077e9e62dff2de1951615bd047ecc5f11c73c", size = 34313 },
 ]
 
 [[package]]

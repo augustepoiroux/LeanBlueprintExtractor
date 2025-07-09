@@ -4,90 +4,15 @@ import shutil
 import traceback
 from pathlib import Path
 from time import perf_counter
-from typing import Annotated, Literal
 
 import jsonlines
 from joblib import Parallel, delayed
 from lean_interact import AutoLeanServer, FileCommand, LeanREPLConfig
 from lean_interact.config import BaseProject
-from lean_interact.interface import LeanError, Pos, Range
-from pydantic import BaseModel, Field
+from lean_interact.interface import DeclarationInfo, LeanError, Pos
 from tqdm import tqdm
 
 from lean_blueprint_extractor.utils import logger
-
-
-class DocString(BaseModel):
-    content: str
-    range: Range
-
-
-class DeclModifiers(BaseModel):
-    doc_string: Annotated[DocString | None, Field(default=None, alias="docString")]
-    visibility: Literal["regular", "private", "protected", "public"] = "regular"
-    compute_kind: Annotated[Literal["regular", "meta", "noncomputable"], Field(default="regular", alias="computeKind")]
-    rec_kind: Annotated[Literal["default", "partial", "nonrec"], Field(default="default", alias="recKind")]
-    is_unsafe: Annotated[bool, Field(default=False, alias="isUnsafe")]
-    attributes: list[str] = Field(default_factory=list)
-
-
-class DeclSignature(BaseModel):
-    pp: str
-    constants: list[str]
-    range: Range
-
-
-class BinderView(BaseModel):
-    id: str
-    type: str
-    binderInfo: str
-
-
-class DeclBinders(BaseModel):
-    pp: str
-    groups: list[str]
-    map: list[BinderView]
-    range: Range
-
-
-class DeclType(BaseModel):
-    pp: str
-    constants: list[str]
-    range: Range
-
-
-class DeclValue(BaseModel):
-    pp: str
-    constants: list[str]
-    range: Range
-
-
-class OpenDecl(BaseModel):
-    simple: dict[str, str | list[str]] | None = None
-    rename: dict[str, str] | None = None
-
-
-class ScopeInfo(BaseModel):
-    var_decls: Annotated[list[str], Field(default_factory=list, alias="varDecls")]
-    include_vars: Annotated[list[str], Field(default_factory=list, alias="includeVars")]
-    omit_vars: Annotated[list[str], Field(default_factory=list, alias="omitVars")]
-    level_names: Annotated[list[str], Field(default_factory=list, alias="levelNames")]
-    curr_namespace: str = ""
-    open_decl: Annotated[list[OpenDecl], Field(default_factory=list, alias="openDecl")]
-
-
-class DeclarationInfo(BaseModel):
-    pp: str
-    range: Range
-    scope: ScopeInfo
-    name: str
-    full_name: Annotated[str, Field(alias="fullName")]
-    kind: str
-    modifiers: DeclModifiers
-    signature: DeclSignature
-    binders: DeclBinders | None = None
-    type: DeclType | None = None
-    value: DeclValue | None = None
 
 
 def pos_to_index(lean_content: str, pos: tuple[int, int] | Pos) -> int:
