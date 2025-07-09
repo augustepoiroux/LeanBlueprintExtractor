@@ -1,8 +1,10 @@
+import json
 import os
 import subprocess
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from pathlib import Path
 
 from lean_interact import AutoLeanServer, FileCommand, LeanREPLConfig, LocalProject
 from lean_interact.interface import CommandResponse, LeanError
@@ -14,13 +16,13 @@ from mcp.server.fastmcp.prompts import base
 class AppContext:
     repl_config: LeanREPLConfig
     repl_server: AutoLeanServer
-    project_dir: str
+    project_dir: Path
     nb_process_parsing: int
 
 
 @asynccontextmanager
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
-    project_dir = os.path.normpath(os.environ.get("LEAN_BLUEPRINT_PROJECT_DIR", ""))
+    project_dir = Path(os.environ.get("LEAN_BLUEPRINT_PROJECT_DIR", "")).resolve()
     nb_process_parsing = int(os.environ.get("LEAN_BLUEPRINT_NB_PROCESS", 0))
     if not project_dir:
         raise ValueError("Environment variable LEAN_BLUEPRINT_PROJECT_DIR is not set.")
@@ -103,7 +105,7 @@ async def run_file(ctx: Context, file: str) -> CommandResponse | LeanError:
     To be used only if you don't have access to VS Code or Lean extension output."""
     await ctx.report_progress(0, 1)
     try:
-        lean_file = os.path.normpath(os.path.join(ctx.request_context.lifespan_context.project_dir, file))
+        lean_file = (ctx.request_context.lifespan_context.project_dir / file).resolve()
         repl_server: AutoLeanServer = ctx.request_context.lifespan_context.repl_server
         file_res = await repl_server.async_run(FileCommand(path=lean_file))
         if isinstance(file_res, LeanError):
@@ -167,13 +169,10 @@ async def get_blueprint_node_context(ctx: Context, node_label: str) -> str:
     await ctx.report_progress(0, 1)
 
     try:
-        import json
-        import os
+        project_dir: Path = ctx.request_context.lifespan_context.project_dir
+        blueprint_data_file = project_dir / ".cache" / "blueprint_trace" / "blueprint_to_lean.jsonl"
 
-        project_dir = ctx.request_context.lifespan_context.project_dir
-        blueprint_data_file = os.path.join(project_dir, ".trace_cache", "blueprint_to_lean.jsonl")
-
-        if not os.path.exists(blueprint_data_file):
+        if not blueprint_data_file.exists():
             return "Blueprint data not found. Please run 'Parse Blueprint Project' first."
 
         # Load and parse blueprint data
@@ -257,13 +256,10 @@ async def get_node_dependencies(ctx: Context, node_label: str) -> str:
     await ctx.report_progress(0, 1)
 
     try:
-        import json
-        import os
+        project_dir: Path = ctx.request_context.lifespan_context.project_dir
+        blueprint_data_file = project_dir / ".cache" / "blueprint_trace" / "blueprint_to_lean.jsonl"
 
-        project_dir = ctx.request_context.lifespan_context.project_dir
-        blueprint_data_file = os.path.join(project_dir, ".trace_cache", "blueprint_to_lean.jsonl")
-
-        if not os.path.exists(blueprint_data_file):
+        if not blueprint_data_file.exists():
             return "Blueprint data not found. Please run 'Parse Blueprint Project' first."
 
         # Load blueprint data
@@ -321,13 +317,11 @@ async def get_related_lean_code(ctx: Context, node_label: str) -> str:
     await ctx.report_progress(0, 1)
 
     try:
-        import json
-        import os
+        project_dir: Path = ctx.request_context.lifespan_context.project_dir
+        blueprint_data_file = project_dir / ".cache" / "blueprint_trace" / "blueprint_to_lean.jsonl"
 
-        project_dir = ctx.request_context.lifespan_context.project_dir
-        blueprint_data_file = os.path.join(project_dir, ".trace_cache", "blueprint_to_lean.jsonl")
-
-        if not os.path.exists(blueprint_data_file):
+        if not blueprint_data_file.exists():
+            await ctx.error("Blueprint data not found. Please run 'Parse Blueprint Project' first.")
             return "Blueprint data not found. Please run 'Parse Blueprint Project' first."
 
         # Load blueprint data

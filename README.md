@@ -28,7 +28,7 @@ To extract a local Lean project, you can use the `lean-blueprint-extract-local` 
 lean-blueprint-extract-local --project-dir /path/to/lean/project --nb-process 4
 ```
 
-You can find the output in the `.trace_cache` directory within your project directory. The `blueprint_to_lean.jsonl` file contains the extracted and aligned data.
+You can find the output in the `.cache/blueprint_trace` directory within your project directory. The `blueprint_to_lean.jsonl` file contains the extracted and aligned data.
 
 ## MCP server
 

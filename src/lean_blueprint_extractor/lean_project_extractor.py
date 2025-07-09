@@ -65,15 +65,12 @@ def get_declaration_dependencies(
     return results
 
 
-def extract_declaration_dependencies(traced_project: Path, repl_config: LeanREPLConfig) -> list[dict]:
+def extract_declaration_dependencies(traced_project: Path) -> list[dict]:
     """Extract all Lean declaration identifiers from the traced repo and their dependencies."""
     declaration_dependencies = []
-    omit_dir = repl_config._cache_repl_dir.resolve()
-    for lean_cached_file in (traced_project.resolve() / ".trace_cache").glob("**/*.lean"):
-        if lean_cached_file.is_relative_to(omit_dir):
-            continue
+    for lean_cached_file in (traced_project.resolve() / ".cache" / "blueprint_trace").glob("**/*.lean"):
         trace_file = lean_cached_file.with_suffix(".declarations.jsonl")
-        lean_real_file = traced_project / lean_cached_file.relative_to(traced_project / ".trace_cache")
+        lean_real_file = traced_project / lean_cached_file.relative_to(traced_project / ".cache" / "blueprint_trace")
         if not lean_cached_file.exists():
             logger.error(f"{lean_cached_file} does not exist, skipping.")
             continue
@@ -101,8 +98,8 @@ def process_file(file: str, project_dir: Path, repl_config: LeanREPLConfig) -> t
     start = perf_counter()
     file_path = Path(file)
     src_lean_file = project_dir / file_path
-    dest_lean_file = project_dir / ".trace_cache" / file_path.with_suffix(".lean")
-    # If the file exists in .trace_cache and content is the same, skip processing
+    dest_lean_file = project_dir / ".cache" / "blueprint_trace" / file_path.with_suffix(".lean")
+    # If the file exists in .cache/blueprint_trace and content is the same, skip processing
     if dest_lean_file.exists():
         with open(src_lean_file, "rb") as f1, open(dest_lean_file, "rb") as f2:
             if f1.read() == f2.read():
@@ -119,7 +116,7 @@ def process_file(file: str, project_dir: Path, repl_config: LeanREPLConfig) -> t
         elapsed = perf_counter() - start
         return (str(file_path), False, tb, elapsed)
 
-    output_file = project_dir / ".trace_cache" / file_path.with_suffix(".declarations.jsonl")
+    output_file = project_dir / ".cache" / "blueprint_trace" / file_path.with_suffix(".declarations.jsonl")
     output_file.parent.mkdir(parents=True, exist_ok=True)
     with open(output_file, "w") as f:
         f.write("")
@@ -135,7 +132,7 @@ def process_file(file: str, project_dir: Path, repl_config: LeanREPLConfig) -> t
             elapsed = perf_counter() - start
             return (str(file_path), False, tb, elapsed)
 
-    # Copy the Lean file to the .trace_cache directory
+    # Copy the Lean file to the .cache/blueprint_trace directory
     dest_lean_file.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src_lean_file, dest_lean_file)
 
@@ -143,15 +140,17 @@ def process_file(file: str, project_dir: Path, repl_config: LeanREPLConfig) -> t
     return (str(file_path), True, None, elapsed)
 
 
-def trace_repo(output_dir: str, project: BaseProject, nb_process: int, verbose: bool = True) -> tuple[Path, list[dict]]:
+def trace_repo(
+    lean_interact_cache_dir: str | os.PathLike, project: BaseProject, nb_process: int, verbose: bool = True
+) -> tuple[Path, list[dict]]:
     repl_config = LeanREPLConfig(
         project=project,
-        cache_dir=output_dir,
+        cache_dir=lean_interact_cache_dir,
         verbose=verbose,
     )
 
     project_dir = Path(repl_config.working_dir)
-    trace_dir = project_dir / ".trace_cache"
+    trace_dir = project_dir / ".cache" / "blueprint_trace"
 
     lean_files = glob.glob("**/*.lean", recursive=True, root_dir=project_dir)
 
@@ -190,7 +189,7 @@ def trace_repo(output_dir: str, project: BaseProject, nb_process: int, verbose: 
         else:
             logger.info("No errors encountered.")
 
-    all_declarations = extract_declaration_dependencies(project_dir, repl_config)
+    all_declarations = extract_declaration_dependencies(project_dir)
     with jsonlines.open(os.path.join(trace_dir, "lean_declarations.jsonl"), "w") as writer:
         writer.write_all(all_declarations)
 

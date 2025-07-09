@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+from pathlib import Path
 
 import jsonlines
 from lean_interact import LocalProject
@@ -24,21 +25,22 @@ def main():
     )
     args = parser.parse_args()
 
-    trace_cache_dir = os.path.join(args.project_dir, ".trace_cache")
+    lean_interact_cache_dir = Path(args.project_dir) / ".cache" / "lean_interact"
 
     try:
         project = LocalProject(args.project_dir)
-        project_path, declarations = trace_repo(trace_cache_dir, project, args.nb_process)
+        project_path, declarations = trace_repo(lean_interact_cache_dir, project, args.nb_process)
+        trace_dir = project_path / ".cache" / "blueprint_trace"
 
-        blueprint_src_path = os.path.join(project_path, "blueprint")
+        blueprint_src_path = project_path / "blueprint"
         blueprint_graph = extract_blueprint_info(blueprint_src_path)
 
-        with jsonlines.open(os.path.join(trace_cache_dir, "blueprint.jsonl"), "w") as writer:
+        with jsonlines.open(trace_dir / "blueprint.jsonl", "w") as writer:
             writer.write_all(blueprint_graph)
 
         dep_graph_info = merge_blueprint_lean_dep_graphs(blueprint_graph, declarations)
 
-        with jsonlines.open(os.path.join(trace_cache_dir, "blueprint_to_lean.jsonl"), "w") as writer:
+        with jsonlines.open(trace_dir / "blueprint_to_lean.jsonl", "w") as writer:
             writer.write_all(dep_graph_info)
 
     except Exception as e:

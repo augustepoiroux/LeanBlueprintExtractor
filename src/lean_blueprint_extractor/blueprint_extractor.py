@@ -96,13 +96,13 @@ def rec_extract_dep_graph_info(node: Node) -> list[dict]:  # type: ignore
         return res
 
 
-def find_file(root: str, filename: str) -> str | None:
+def find_file(root: str | os.PathLike, filename: str) -> str | None:
     for dirpath, _, files in os.walk(root):
         if filename in files:
             return os.path.join(dirpath, filename)
 
 
-def extract_blueprint_info(blueprint_src_path: str, verbose: bool = False) -> list[dict]:
+def extract_blueprint_info(blueprint_src_path: str | os.PathLike, verbose: bool = False) -> list[dict]:
     # find the webtex file in the blueprint source path
     webtex_file = find_file(blueprint_src_path, "web.tex")
     if not webtex_file:
