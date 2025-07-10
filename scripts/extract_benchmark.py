@@ -13,7 +13,7 @@ from lean_blueprint_extractor.blueprint_extractor import (
 from lean_blueprint_extractor.blueprint_lean_linking import (
     merge_blueprint_lean_dep_graphs,
 )
-from lean_blueprint_extractor.lean_project_extractor import trace_repo
+from lean_blueprint_extractor.lean_extractor import trace_repo
 from lean_blueprint_extractor.utils import ROOT_DIR, console
 
 if __name__ == "__main__":

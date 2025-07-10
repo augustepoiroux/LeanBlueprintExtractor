@@ -11,6 +11,8 @@ from lean_interact.interface import CommandResponse, LeanError
 from mcp.server.fastmcp import Context, FastMCP
 from mcp.server.fastmcp.prompts import base
 
+from lean_blueprint_extractor.local_project_extractor import parse_local_project
+
 
 @dataclass
 class AppContext:
@@ -28,7 +30,10 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
         raise ValueError("Environment variable LEAN_BLUEPRINT_PROJECT_DIR is not set.")
 
     try:
-        repl_config = LeanREPLConfig(project=LocalProject(directory=project_dir))
+        repl_config = LeanREPLConfig(
+            project=LocalProject(directory=project_dir),
+            repl_cache_dir=project_dir / ".cache" / "lean_interact",
+        )
         repl_server = AutoLeanServer(config=repl_config)
         yield AppContext(
             repl_config=repl_config,
@@ -93,8 +98,14 @@ async def reparse_project(ctx: Context) -> None:
     await ctx.info("Re-parsing the project...")
     await ctx.report_progress(0, 1)
     try:
-        await ctx.request_context.lifespan_context.repl_server.reparse()
-        await ctx.info("Re-parsing completed successfully.")
+        if parse_local_project(
+            ctx.request_context.lifespan_context.project_dir,
+            ctx.request_context.lifespan_context.nb_process_parsing,
+            repl_cache_dir=ctx.request_context.lifespan_context.repl_config._cache_repl_dir,
+        ):
+            await ctx.info("Re-parsing completed successfully.")
+        else:
+            await ctx.error("Re-parsing failed. Please check the logs for more details.")
     except Exception as e:
         await ctx.error(f"Re-parsing failed: {e}")
 
