@@ -33,22 +33,58 @@ You can find the output in the `.cache/blueprint_trace` directory within your pr
 ## MCP server
 
 This project comes with an MCP server implementation. This MCP server implementation is in particular backing the [LeanBlueprintCopilot](https://github.com/augustepoiroux/LeanBlueprintCopilot) VS Code extension.
-Install this project with the `mcp` optional dependency to enable the MCP server:
+
+The MCP server contains incremental state reuse (see this [PR](https://github.com/leanprover-community/repl/pull/110)), mirroring and extending the human VS Code experience for LLM agents. When editing a file, previous executions of the file will be reused, hence avoiding a complete re-execution of the file. Here, this feature takes into account the whole history of edited files, making backtracking and sampling more efficient, and cross-file execution sharing possible.
+
+### Gemini-CLI
+
+Follow general gemini-cli instructions [here](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/configuration.md), and add the following configuration to your `.gemini/settings.json` file:
+
+```json
+"lean-blueprint-mcp": {
+    "command": "bash",
+    "args": [
+    "-c",
+    "uvx --from git+https://github.com/augustepoiroux/LeanBlueprintExtractor[mcp] lean-blueprint-mcp"
+    ],
+    "env": {
+    "LEAN_BLUEPRINT_PROJECT_DIR": "/home/poiroux/Documents/EPFL/PhD/lean_blueprint_ai_vscode/FLT"
+    }
+}
+```
+
+### VS Code
+
+Follow the instructions on the [VS Code website](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) and install [uv](https://docs.astral.sh/uv/getting-started/installation/). Here is the configuration you can use:
+
+```json
+"lean-blueprint-mcp": {
+    "type": "stdio",
+    "command": "bash",
+    "args": ["-c", "uvx --from git+https://github.com/augustepoiroux/LeanBlueprintExtractor[mcp] lean-blueprint-mcp"],
+    "env": {
+        "LEAN_BLUEPRINT_PROJECT_DIR": "path/to/lean/project"
+    }
+}
+```
+
+### Manually launching the MCP server with [`uvx`](https://docs.astral.sh/uv/guides/tools/)
+
+Run the following command to start the MCP server with the Lean project you want to work with. Make sure to replace `path/to/lean/project` with the actual path to your Lean project:
+
+```bash
+export LEAN_BLUEPRINT_PROJECT_DIR="path/to/lean/project"
+uvx --from git+https://github.com/augustepoiroux/LeanBlueprintExtractor[mcp] lean-blueprint-mcp
+```
+
+You can pass arguments to the MCP server by appending them after `lean-blueprint-mcp`: `... lean-blueprint-mcp --port 5000`.
+
+### Manually launching the MCP server with local installation
+
+Alternatively, install this project with the `mcp` optional dependency to enable the MCP server:
 
 ```bash
 pip install -e .[mcp]
-```
-
-Set the directory of the Lean project you want to work with in the environment variable `LEAN_BLUEPRINT_PROJECT_DIR`. For example, if your Lean project is located at `/path/to/lean/project`, you can set the environment variable as follows:
-
-```bash
 export LEAN_BLUEPRINT_PROJECT_DIR="/path/to/lean/project"
-```
-
-Start the MCP server with:
-
-```bash
 lean-blueprint-mcp
 ```
-
-The MCP server contains incremental state reuse (see this [PR](https://github.com/leanprover-community/repl/pull/110)), mirroring and extending the human VS Code experience for LLM agents. When editing a file, previous executions of the file will be reused, hence avoiding a complete re-execution of the file. Here, this feature takes into account the whole history of edited files, making backtracking and sampling more efficient, and cross-file execution sharing possible.

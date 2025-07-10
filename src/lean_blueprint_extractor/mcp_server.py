@@ -107,7 +107,7 @@ async def run_file(ctx: Context, file: str) -> CommandResponse | LeanError:
     try:
         lean_file = (ctx.request_context.lifespan_context.project_dir / file).resolve()
         repl_server: AutoLeanServer = ctx.request_context.lifespan_context.repl_server
-        file_res = await repl_server.async_run(FileCommand(path=lean_file))
+        file_res = await repl_server.async_run(FileCommand(path=str(lean_file)))
         if isinstance(file_res, LeanError):
             await ctx.error(f"Provided file `{file}` could not be loaded: {file_res}")
         return file_res
