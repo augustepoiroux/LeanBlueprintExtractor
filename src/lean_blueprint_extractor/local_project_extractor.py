@@ -25,11 +25,11 @@ def main():
     )
     args = parser.parse_args()
 
-    lean_interact_cache_dir = Path(args.project_dir) / ".cache" / "lean_interact"
+    repl_cache_dir = Path(args.project_dir) / ".cache" / "lean_interact"
 
     try:
         project = LocalProject(args.project_dir)
-        project_path, declarations = trace_repo(lean_interact_cache_dir, project, args.nb_process)
+        project_path, declarations = trace_repo(project, args.nb_process, repl_cache_dir=repl_cache_dir)
         trace_dir = project_path / ".cache" / "blueprint_trace"
 
         blueprint_src_path = project_path / "blueprint"

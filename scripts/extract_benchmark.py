@@ -39,9 +39,12 @@ if __name__ == "__main__":
         try:
             start_time = time.time()
             project_dir = git_url.split("/")[-1]
-            output_dir = os.path.join(traced_repos_dir, f"{project_dir}_{commit}")
+            project_cache_dir = os.path.join(traced_repos_dir, f"{project_dir}_{commit}")
+            repl_cache_dir = os.path.join(traced_repos_dir, ".cache", "lean_interact")
             project = GitProject(url=git_url, rev=commit)
-            project_path, declarations = trace_repo(output_dir, project, args.nb_process)
+            project_path, declarations = trace_repo(
+                project, args.nb_process, repl_cache_dir=repl_cache_dir, project_cache_dir=project_cache_dir
+            )
 
             if blueprint_cmd:
                 console.print(f"Running command: `{blueprint_cmd}`")
@@ -51,7 +54,7 @@ if __name__ == "__main__":
             blueprint_src_path = os.path.join(project_path, "blueprint")
             blueprint_graph = extract_blueprint_info(blueprint_src_path)
 
-            with jsonlines.open(os.path.join(output_dir, "blueprint.jsonl"), "w") as writer:
+            with jsonlines.open(os.path.join(project_cache_dir, "blueprint.jsonl"), "w") as writer:
                 writer.write_all(blueprint_graph)
 
             console.print(f"Number of declarations in blueprint: {len(blueprint_graph)}")
@@ -59,7 +62,7 @@ if __name__ == "__main__":
 
             dep_graph_info = merge_blueprint_lean_dep_graphs(blueprint_graph, declarations)
 
-            with jsonlines.open(os.path.join(output_dir, "blueprint_to_lean.jsonl"), "w") as writer:
+            with jsonlines.open(os.path.join(project_cache_dir, "blueprint_to_lean.jsonl"), "w") as writer:
                 writer.write_all(dep_graph_info)
 
             success.append([project_name, "Success"])

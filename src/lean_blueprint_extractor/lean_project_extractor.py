@@ -141,12 +141,21 @@ def process_file(file: str, project_dir: Path, repl_config: LeanREPLConfig) -> t
 
 
 def trace_repo(
-    lean_interact_cache_dir: str | os.PathLike, project: BaseProject, nb_process: int, verbose: bool = True
+    project: BaseProject,
+    nb_process: int,
+    verbose: bool = True,
+    repl_cache_dir: str | os.PathLike | None = None,
+    project_cache_dir: str | os.PathLike | None = None,
 ) -> tuple[Path, list[dict]]:
+    extra_attributes = {}
+    if repl_cache_dir is not None:
+        extra_attributes["repl_cache_dir"] = str(repl_cache_dir)
+    if project_cache_dir is not None:
+        extra_attributes["project_cache_dir"] = str(project_cache_dir)
     repl_config = LeanREPLConfig(
         project=project,
-        cache_dir=lean_interact_cache_dir,
         verbose=verbose,
+        **extra_attributes,
     )
 
     project_dir = Path(repl_config.working_dir)

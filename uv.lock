@@ -309,7 +309,7 @@ mcp = [
 requires-dist = [
     { name = "joblib", specifier = ">=1.5.1" },
     { name = "jsonlines", specifier = ">=4.0.0" },
-    { name = "lean-interact", git = "https://github.com/augustepoiroux/LeanInteract?tag=nightly-2025-07-09" },
+    { name = "lean-interact", git = "https://github.com/augustepoiroux/LeanInteract?tag=nightly-2025-07-10" },
     { name = "leanblueprint", specifier = ">=0.0.15" },
     { name = "mcp", extras = ["cli"], marker = "extra == 'mcp'", specifier = ">=1.6.0" },
     { name = "networkx", specifier = ">=3.4.2" },
@@ -321,7 +321,7 @@ requires-dist = [
 [[package]]
 name = "lean-interact"
 version = "0.7.0"
-source = { git = "https://github.com/augustepoiroux/LeanInteract?tag=nightly-2025-07-09#9328d19eccb63230fe806aac7715620b8ad58f03" }
+source = { git = "https://github.com/augustepoiroux/LeanInteract?tag=nightly-2025-07-10#2face6f58ed6dd504e944e8038eec2dab58abe7f" }
 dependencies = [
     { name = "filelock" },
     { name = "gitpython" },
