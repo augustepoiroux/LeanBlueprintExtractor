@@ -44,11 +44,11 @@ Follow general gemini-cli instructions [here](https://github.com/google-gemini/g
 "lean-blueprint-mcp": {
     "command": "bash",
     "args": [
-    "-c",
-    "uvx --from git+https://github.com/augustepoiroux/LeanBlueprintExtractor[mcp] lean-blueprint-mcp"
+        "-c",
+        "uvx --from git+https://github.com/augustepoiroux/LeanBlueprintExtractor[mcp] lean-blueprint-mcp"
     ],
     "env": {
-    "LEAN_BLUEPRINT_PROJECT_DIR": "/home/poiroux/Documents/EPFL/PhD/lean_blueprint_ai_vscode/FLT"
+        "LEAN_BLUEPRINT_PROJECT_DIR": "/home/poiroux/Documents/EPFL/PhD/lean_blueprint_ai_vscode/FLT"
     }
 }
 ```
