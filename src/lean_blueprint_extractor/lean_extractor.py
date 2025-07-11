@@ -138,20 +138,17 @@ def trace_repo(
     nb_process: int,
     verbose: bool = True,
     repl_cache_dir: str | os.PathLike | None = None,
-    project_cache_dir: str | os.PathLike | None = None,
-) -> tuple[Path, list[dict]]:
-    extra_attributes = {}
-    if repl_cache_dir is not None:
-        extra_attributes["repl_cache_dir"] = str(repl_cache_dir)
-    if project_cache_dir is not None:
-        extra_attributes["project_cache_dir"] = str(project_cache_dir)
+) -> list[dict]:
+    extract_attributes = {}
+    if repl_cache_dir:
+        extract_attributes["cache_dir"] = repl_cache_dir
     repl_config = LeanREPLConfig(
         project=project,
         verbose=verbose,
-        **extra_attributes,
+        **extract_attributes,
     )
 
-    project_dir = Path(repl_config.working_dir)
+    project_dir = Path(project.get_directory())
     trace_dir = project_dir / ".cache" / "blueprint_trace"
 
     lean_files = glob.glob("**/*.lean", recursive=True, root_dir=project_dir)
@@ -195,4 +192,4 @@ def trace_repo(
     with jsonlines.open(os.path.join(trace_dir, "lean_declarations.jsonl"), "w") as writer:
         writer.write_all(all_declarations)
 
-    return project_dir, all_declarations
+    return all_declarations

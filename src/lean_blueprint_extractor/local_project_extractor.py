@@ -28,11 +28,11 @@ def parse_local_project(project_dir: str, nb_process: int, repl_cache_dir: Path 
         bool: True if the parsing was successful, False otherwise.
     """
     try:
-        project = LocalProject(project_dir)
-        project_path, declarations = trace_repo(project, nb_process, repl_cache_dir=repl_cache_dir)
-        trace_dir = project_path / ".cache" / "blueprint_trace"
+        project = LocalProject(directory=project_dir)
+        declarations = trace_repo(project, nb_process, repl_cache_dir=repl_cache_dir)
+        trace_dir = Path(project.get_directory()) / ".cache" / "blueprint_trace"
 
-        blueprint_src_path = project_path / "blueprint"
+        blueprint_src_path = Path(project.get_directory()) / "blueprint"
         blueprint_graph = extract_blueprint_info(blueprint_src_path)
 
         with jsonlines.open(trace_dir / "blueprint.jsonl", "w") as writer:

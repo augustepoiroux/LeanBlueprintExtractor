@@ -12,13 +12,13 @@ classifiers = [
 ]
 dependencies = [
     "jsonlines>=4.0.0",
-    "rich",
+    "rich>=14.0.0",
     "leanblueprint>=0.0.15",
     "networkx>=3.4.2",
     "joblib>=1.5.1",
     "tqdm>=4.67.1",
     "pyyaml>=6.0.2",
-    "lean-interact",
+    "lean-interact"
 ]
 
 [project.optional-dependencies]
@@ -35,4 +35,4 @@ requires      = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.uv.sources]
-lean-interact = { git = "https://github.com/augustepoiroux/LeanInteract", tag = "nightly-2025-07-11" }
+lean-interact = { git = "https://github.com/augustepoiroux/LeanInteract", tag = "nightly-2025-07-11-2" }

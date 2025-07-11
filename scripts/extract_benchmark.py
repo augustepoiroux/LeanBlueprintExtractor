@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import time
+from pathlib import Path
 
 import jsonlines
 import yaml
@@ -41,20 +42,19 @@ if __name__ == "__main__":
             project_dir = git_url.split("/")[-1]
             project_cache_dir = os.path.join(traced_repos_dir, f"{project_dir}_{commit}")
             repl_cache_dir = os.path.join(traced_repos_dir, ".cache", "lean_interact")
-            project = GitProject(url=git_url, rev=commit)
-            project_path, declarations = trace_repo(
-                project, args.nb_process, repl_cache_dir=repl_cache_dir, project_cache_dir=project_cache_dir
-            )
+            project = GitProject(url=git_url, rev=commit, directory=project_cache_dir)
+            project_path = Path(project.get_directory())
+            declarations = trace_repo(project, args.nb_process, repl_cache_dir=repl_cache_dir)
 
             if blueprint_cmd:
                 console.print(f"Running command: `{blueprint_cmd}`")
                 os.chdir(project_path)
                 os.system(blueprint_cmd)
 
-            blueprint_src_path = os.path.join(project_path, "blueprint")
+            blueprint_src_path = project_path / "blueprint"
             blueprint_graph = extract_blueprint_info(blueprint_src_path)
 
-            with jsonlines.open(os.path.join(project_cache_dir, "blueprint.jsonl"), "w") as writer:
+            with jsonlines.open(project_path / "blueprint.jsonl", "w") as writer:
                 writer.write_all(blueprint_graph)
 
             console.print(f"Number of declarations in blueprint: {len(blueprint_graph)}")
