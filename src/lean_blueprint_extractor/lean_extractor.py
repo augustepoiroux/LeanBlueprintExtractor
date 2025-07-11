@@ -108,7 +108,7 @@ def process_file(file: str, project_dir: Path, repl_config: LeanREPLConfig) -> t
 
     server = AutoLeanServer(config=repl_config)
     try:
-        response = server.run(FileCommand(path=str(file_path), declarations=True))  # type: ignore
+        response = server.run(FileCommand(path=str(file_path), declarations=True))
         if isinstance(response, LeanError):
             raise ValueError(f"Error in file {file_path}: {response.message}")
     except Exception:
@@ -121,16 +121,9 @@ def process_file(file: str, project_dir: Path, repl_config: LeanREPLConfig) -> t
     with open(output_file, "w") as f:
         f.write("")
 
-    declarations = getattr(response, "declarations", [])
-    for decl in declarations:
-        try:
-            valid_decl = DeclarationInfo(**decl)
-            with jsonlines.open(output_file, mode="a") as writer:
-                writer.write(valid_decl.model_dump(by_alias=True, mode="json"))
-        except Exception:
-            tb = traceback.format_exc()
-            elapsed = perf_counter() - start
-            return (str(file_path), False, tb, elapsed)
+    with jsonlines.open(output_file, mode="a") as writer:
+        for decl in response.declarations:
+            writer.write(decl.model_dump(by_alias=True, mode="json"))
 
     # Copy the Lean file to the .cache/blueprint_trace directory
     dest_lean_file.parent.mkdir(parents=True, exist_ok=True)

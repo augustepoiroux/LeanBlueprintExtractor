@@ -35,4 +35,4 @@ requires      = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.uv.sources]
-lean-interact = { git = "https://github.com/augustepoiroux/LeanInteract", tag = "nightly-2025-07-10" }
+lean-interact = { git = "https://github.com/augustepoiroux/LeanInteract", tag = "nightly-2025-07-11" }
